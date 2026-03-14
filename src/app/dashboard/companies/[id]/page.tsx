@@ -421,10 +421,13 @@ export default function CompanyDetailPage() {
                 <p className="text-slate-300 text-sm leading-relaxed mb-4">
                   {company.salesAction}
                 </p>
-                <button className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-white font-medium px-4 py-2 rounded-lg transition-all text-sm">
+                <a
+                  href={`mailto:?subject=Outreach: ${encodeURIComponent(company.name)}&body=${encodeURIComponent(`Hi,\n\nI'd like to connect regarding ${company.name}.\n\nKey Insight:\n${company.salesAction || ''}\n\nBest regards`)}`}
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-white font-medium px-4 py-2 rounded-lg transition-all text-sm"
+                >
                   <MessageSquare className="h-4 w-4" />
                   Start Outreach
-                </button>
+                </a>
               </div>
             </div>
           )}
