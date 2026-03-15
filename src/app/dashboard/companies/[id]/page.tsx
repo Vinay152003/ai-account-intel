@@ -153,9 +153,18 @@ export default function CompanyDetailPage() {
   if (!company) return null;
 
   const score = normalizeScore(company.intentScore);
-  const techStack = Array.isArray(company.techStack) ? company.techStack : [];
-  const leadership = Array.isArray(company.leadership) ? company.leadership as Leader[] : [];
-  const businessSignals = Array.isArray(company.businessSignals) ? company.businessSignals : [];
+  const parseJsonField = (field: unknown): unknown[] => {
+    if (Array.isArray(field)) return field;
+    if (typeof field === "string") {
+      try { return JSON.parse(field); } catch { return []; }
+    }
+    return [];
+  };
+  const techStack = parseJsonField(company.techStack) as string[];
+  const leadership = (parseJsonField(company.leadership) as Leader[]).filter(
+    (p) => p && p.name
+  );
+  const businessSignals = parseJsonField(company.businessSignals) as string[];
 
   return (
     <div className="space-y-6">
@@ -363,7 +372,7 @@ export default function CompanyDetailPage() {
                     className="flex items-center gap-3 p-3 bg-slate-900/30 rounded-lg"
                   >
                     <div className="w-8 h-8 bg-gradient-to-br from-cyan-500/20 to-teal-500/20 rounded-full flex items-center justify-center text-cyan-400 text-xs font-bold">
-                      {person.name[0]}
+                      {person.name?.[0] || "?"}
                     </div>
                     <div>
                       <p className="text-sm font-medium text-white">{person.name}</p>
