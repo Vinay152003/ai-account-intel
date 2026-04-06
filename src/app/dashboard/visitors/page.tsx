@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
   Users,
   Plus,
@@ -14,6 +15,7 @@ import {
   Clock,
   Eye,
   Link2,
+  ChevronRight,
 } from "lucide-react";
 
 interface Visitor {
@@ -24,7 +26,12 @@ interface Visitor {
   timeOnSite: number;
   visitCount: number;
   referralSource: string | null;
+  device: string | null;
+  location: string | null;
+  userAgent: string | null;
   intentScore: number | null;
+  persona: string | null;
+  userSegment: string | null;
   companyId: string | null;
   company?: { name: string } | null;
   createdAt: string;
@@ -40,27 +47,36 @@ function getScoreColor(score: number | null) {
 const sampleVisitors = [
   {
     visitorId: "visitor-001",
-    ipAddress: "192.168.1.100",
-    pagesVisited: "/pricing,/features,/enterprise,/contact",
+    ipAddress: "34.201.12.45",
+    pagesVisited: "/pricing,/features,/enterprise,/contact,/ai-sales-agent",
     timeOnSite: 340,
     visitCount: 5,
     referralSource: "google",
+    device: "Desktop",
+    location: "San Francisco, CA",
+    userAgent: "Chrome 120 / Windows 11",
   },
   {
     visitorId: "visitor-002",
-    ipAddress: "10.0.0.45",
-    pagesVisited: "/blog,/about",
+    ipAddress: "52.14.88.201",
+    pagesVisited: "/blog,/about,/documentation,/api-reference",
     timeOnSite: 120,
     visitCount: 2,
     referralSource: "twitter",
+    device: "Mobile",
+    location: "New York, NY",
+    userAgent: "Safari / iPhone 15",
   },
   {
     visitorId: "visitor-003",
     ipAddress: "172.16.0.88",
-    pagesVisited: "/pricing,/demo,/case-studies,/integrations",
+    pagesVisited: "/pricing,/demo,/case-studies,/integrations,/security,/enterprise",
     timeOnSite: 560,
     visitCount: 8,
     referralSource: "linkedin",
+    device: "Desktop",
+    location: "Chicago, IL",
+    userAgent: "Firefox 121 / macOS",
   },
 ];
 
@@ -80,6 +96,9 @@ export default function VisitorsPage() {
   const [timeOnSite, setTimeOnSite] = useState("");
   const [visitCount, setVisitCount] = useState("");
   const [referralSource, setReferralSource] = useState("");
+  const [device, setDevice] = useState("");
+  const [location, setLocation] = useState("");
+  const [userAgent, setUserAgent] = useState("");
 
   useEffect(() => {
     fetchVisitors();
@@ -117,6 +136,9 @@ export default function VisitorsPage() {
           timeOnSite: parseInt(timeOnSite) || 0,
           visitCount: parseInt(visitCount) || 1,
           referralSource: referralSource || undefined,
+          device: device || undefined,
+          location: location || undefined,
+          userAgent: userAgent || undefined,
         }),
       });
       if (!res.ok) {
@@ -143,6 +165,9 @@ export default function VisitorsPage() {
     setTimeOnSite("");
     setVisitCount("");
     setReferralSource("");
+    setDevice("");
+    setLocation("");
+    setUserAgent("");
   };
 
   const analyzeVisitor = async (id: string) => {
@@ -340,6 +365,44 @@ export default function VisitorsPage() {
                   className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
                 />
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1.5">
+                    Device
+                  </label>
+                  <input
+                    type="text"
+                    value={device}
+                    onChange={(e) => setDevice(e.target.value)}
+                    placeholder="e.g. Desktop, Mobile"
+                    className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1.5">
+                    Location
+                  </label>
+                  <input
+                    type="text"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    placeholder="e.g. San Francisco, CA"
+                    className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">
+                  User Agent
+                </label>
+                <input
+                  type="text"
+                  value={userAgent}
+                  onChange={(e) => setUserAgent(e.target.value)}
+                  placeholder="e.g. Chrome 120 / Windows 11"
+                  className="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all"
+                />
+              </div>
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"
@@ -445,15 +508,15 @@ export default function VisitorsPage() {
                     className="hover:bg-slate-700/20 transition-colors"
                   >
                     <td className="px-4 py-3">
-                      <div>
-                        <p className="text-sm font-medium text-white">
+                      <Link href={`/dashboard/visitors/${visitor.id}`} className="block group">
+                        <p className="text-sm font-medium text-white group-hover:text-cyan-400 transition-colors">
                           {visitor.visitorId}
                         </p>
                         <div className="flex items-center gap-1 text-xs text-slate-500">
                           <Globe className="h-3 w-3" />
                           {visitor.ipAddress || "Unknown IP"}
                         </div>
-                      </div>
+                      </Link>
                     </td>
                     <td className="px-4 py-3 hidden sm:table-cell">
                       <div className="flex items-center gap-1 text-xs text-slate-400">
@@ -497,20 +560,26 @@ export default function VisitorsPage() {
                       )}
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <button
-                        onClick={() => analyzeVisitor(visitor.id)}
-                        disabled={analyzingId === visitor.id}
-                        className="inline-flex items-center gap-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 text-cyan-400 text-xs font-medium px-3 py-1.5 rounded-lg transition-all disabled:opacity-50"
-                      >
-                        {analyzingId === visitor.id ? (
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                        ) : (
-                          <Brain className="h-3 w-3" />
-                        )}
-                        {analyzingId === visitor.id
-                          ? "Analyzing..."
-                          : "Analyze"}
-                      </button>
+                      <div className="flex items-center gap-2 justify-end">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); analyzeVisitor(visitor.id); }}
+                          disabled={analyzingId === visitor.id}
+                          className="inline-flex items-center gap-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 text-cyan-400 text-xs font-medium px-3 py-1.5 rounded-lg transition-all disabled:opacity-50"
+                        >
+                          {analyzingId === visitor.id ? (
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                          ) : (
+                            <Brain className="h-3 w-3" />
+                          )}
+                          {analyzingId === visitor.id ? "Analyzing..." : "Analyze"}
+                        </button>
+                        <Link
+                          href={`/dashboard/visitors/${visitor.id}`}
+                          className="inline-flex items-center gap-1 text-slate-400 hover:text-white text-xs font-medium px-2 py-1.5 rounded-lg transition-all"
+                        >
+                          <ChevronRight className="h-3 w-3" />
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))}

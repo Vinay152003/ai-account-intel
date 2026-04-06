@@ -67,6 +67,7 @@ export async function POST(request: Request) {
       referralSource,
       device,
       location,
+      userAgent,
     } = await request.json();
 
     const visitor = await prisma.visitor.create({
@@ -79,6 +80,7 @@ export async function POST(request: Request) {
         referralSource,
         device,
         location,
+        userAgent,
         userId: user.id,
       },
     });

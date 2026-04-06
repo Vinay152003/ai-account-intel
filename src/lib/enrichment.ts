@@ -36,6 +36,10 @@ export interface VisitorAnalysis {
   intentStage: string;
   behaviorSummary: string;
   companyGuess?: string;
+  behavioralAttributes: string[];
+  userSegment: string;
+  keySignals: string[];
+  engagementStrategy: string;
 }
 
 export interface AccountIntelligence {
@@ -235,22 +239,30 @@ Visitor Data:
 
 Return a JSON object with this exact structure:
 {
-  "persona": "<inferred buyer persona, e.g. 'Technical Decision Maker', 'Executive Buyer', 'End User Researcher'>",
+  "persona": "<inferred buyer persona, e.g. 'Technical Decision Maker', 'Executive Buyer', 'End User Researcher', 'Head of Sales Operations', 'Marketing Manager'>",
   "personaConfidence": <0-1 confidence in persona identification>,
   "intentScore": <0-100 buying intent score>,
   "intentStage": "<one of: Awareness, Consideration, Decision, Purchase>",
   "behaviorSummary": "<2-3 sentence summary of what this visitor's behavior suggests>",
-  "companyGuess": "<best guess at company name based on behavior patterns, or null>"
+  "companyGuess": "<best guess at company name based on behavior patterns, or null>",
+  "behavioralAttributes": ["<behavioral tags inferred from patterns, e.g. 'pricing-focused', 'repeat-visitor', 'high-engagement', 'documentation-heavy', 'demo-seeker', 'comparison-shopper', 'content-consumer', 'feature-evaluator'>"],
+  "userSegment": "<one of: Enterprise Buyer, SMB Explorer, Technical Evaluator, Individual Researcher, Partner/Integrator, Executive Decision Maker, Churning Customer>",
+  "keySignals": ["<specific concrete observations, e.g. 'Visited pricing page 3 times', 'Spent 5 minutes on case studies', 'Viewed enterprise features'>"],
+  "engagementStrategy": "<2-3 sentence actionable recommendation for how sales/marketing should engage this visitor>"
 }
 
 Base your analysis on:
-- Pricing page visits indicate high intent
-- Case study / testimonial pages indicate consideration stage
-- Blog / resource pages indicate awareness stage
-- Form submissions indicate decision stage
+- Pricing page visits indicate high intent and Decision stage
+- Case study / testimonial pages indicate Consideration stage
+- Blog / resource pages indicate Awareness stage
+- Form submissions indicate Decision stage
 - Multiple return visits increase intent score
 - Time on site correlates with engagement
-- Downloaded assets (whitepapers, etc.) indicate serious research`;
+- Downloaded assets (whitepapers, etc.) indicate serious research
+- Documentation / API pages suggest Technical Evaluator persona
+- Enterprise / security pages suggest Enterprise Buyer segment
+- Integration pages suggest Partner/Integrator segment
+- Always provide at least 3 behavioral attributes and 3 key signals`;
 
   try {
     return await askClaude<VisitorAnalysis>(systemPrompt, userPrompt);
@@ -360,5 +372,17 @@ function buildFallbackVisitorAnalysis(visitorData: VisitorInput): VisitorAnalysi
     intentScore,
     intentStage,
     behaviorSummary: `Visitor viewed ${visitorData.pagesViewed.length} pages over ${Math.round(visitorData.timeOnSite / 60)} minutes. ${pricingViewed ? "Pricing page was viewed, indicating buying interest." : "No high-intent pages detected."}`,
+    behavioralAttributes: [
+      ...(pricingViewed ? ["pricing-focused"] : []),
+      ...(visitorData.returningVisitor ? ["repeat-visitor"] : []),
+      ...(visitorData.timeOnSite > 300 ? ["high-engagement"] : []),
+    ],
+    userSegment: "Individual Researcher",
+    keySignals: [
+      `Viewed ${visitorData.pagesViewed.length} pages`,
+      `Spent ${Math.round(visitorData.timeOnSite / 60)} minutes on site`,
+      ...(pricingViewed ? ["Visited pricing page"] : []),
+    ],
+    engagementStrategy: "Insufficient behavioral data for a specific strategy. Monitor for return visits and additional page views before outreach.",
   };
 }

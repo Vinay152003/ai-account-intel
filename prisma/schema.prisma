@@ -118,11 +118,15 @@ model Visitor {
   userAgent   String?
 
   // AI Analysis
-  persona           String?
-  personaConfidence Float?
-  intentScore       Float?
-  intentStage       String?
-  behaviorSummary   String? @db.Text
+  persona              String?
+  personaConfidence    Float?
+  intentScore          Float?
+  intentStage          String?
+  behaviorSummary      String? @db.Text
+  behavioralAttributes Json?
+  userSegment          String?
+  keySignals           Json?
+  engagementStrategy   String? @db.Text
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
