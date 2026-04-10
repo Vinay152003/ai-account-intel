@@ -11,6 +11,17 @@ export const authOptions: NextAuthOptions = {
     GitHubProvider({
       clientId: process.env.GITHUB_CLIENT_ID!,
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      authorization: "https://github.com/login/oauth/authorize?scope=read:user+user:email",
+      token: "https://github.com/login/oauth/access_token",
+      userinfo: "https://api.github.com/user",
+      profile(profile) {
+        return {
+          id: profile.id.toString(),
+          name: profile.name || profile.login,
+          email: profile.email,
+          image: profile.avatar_url,
+        };
+      },
     }),
     CredentialsProvider({
       name: "credentials",
