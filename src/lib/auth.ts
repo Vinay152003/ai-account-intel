@@ -1,5 +1,4 @@
 import { NextAuthOptions } from "next-auth";
-import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "./prisma";
@@ -8,12 +7,19 @@ import bcrypt from "bcryptjs";
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as NextAuthOptions["adapter"],
   providers: [
-    GitHubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-      authorization: "https://github.com/login/oauth/authorize?scope=read:user+user:email",
+    {
+      id: "github",
+      name: "GitHub",
+      type: "oauth",
+      authorization: {
+        url: "https://github.com/login/oauth/authorize",
+        params: { scope: "read:user user:email" },
+      },
       token: "https://github.com/login/oauth/access_token",
       userinfo: "https://api.github.com/user",
+      clientId: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+      checks: ["state"],
       profile(profile) {
         return {
           id: profile.id.toString(),
@@ -22,7 +28,7 @@ export const authOptions: NextAuthOptions = {
           image: profile.avatar_url,
         };
       },
-    }),
+    },
     CredentialsProvider({
       name: "credentials",
       credentials: {
